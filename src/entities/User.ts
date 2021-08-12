@@ -3,7 +3,7 @@ import { Field, ObjectType } from "type-graphql";
 
 @ObjectType() // Converting class object to graphql type
 @Entity() // Tells MikrOrm that this is an entity and corresponds to a db table
-export class Post {
+export class User {
     @Field() // Added field as part of converting class object to graphql type
     @PrimaryKey()
     id!: number;
@@ -17,6 +17,9 @@ export class Post {
     updateAt = new Date();
 
     @Field() // You can remove the field to not expose on graphql
+    @Property({type: "text", unique: true})
+    username!: string;
+
     @Property({type: "text"})
-    title!: string;
+    password!: string;
 }
