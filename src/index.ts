@@ -7,6 +7,7 @@ import {ApolloServer} from 'apollo-server-express';
 import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
+import { UserResolver } from "./resolvers/user";
 
 const main = async () => { // create async main bcs of promises
     const orm = await MikroORM.init(microConfig); 
@@ -16,7 +17,7 @@ const main = async () => { // create async main bcs of promises
 
     const apolloServer = new ApolloServer({
         schema: await buildSchema({
-            resolvers: [HelloResolver, PostResolver],
+            resolvers: [HelloResolver, PostResolver,UserResolver],
             validate: false,
         }),
         context: () => ({em: orm.em}) // Special object that is accessible to all the resolvers
