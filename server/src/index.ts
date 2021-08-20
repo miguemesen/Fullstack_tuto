@@ -14,7 +14,7 @@ import { UserResolver } from "./resolvers/user";
 import redis from 'redis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
-//import { MyContext } from "./types";
+import cors from 'cors'
 
 
 
@@ -28,6 +28,14 @@ const main = async () => { // create async main bcs of promises
 
     const RedisStore = connectRedis(session)
     const redisClient = redis.createClient()
+
+    // now cors will apply to all routes
+    app.use(
+      cors({
+        origin: "http://localhost:3000",
+        credentials: true,
+      })
+    );
 
     redisClient.on('error',function(err){
         console.log('Reddis error: ', err)
@@ -65,7 +73,7 @@ const main = async () => { // create async main bcs of promises
 
     await apolloServer.start();
 
-    apolloServer.applyMiddleware({app}); // Create graphql endpoint
+    apolloServer.applyMiddleware({app, cors: false}); // Create graphql endpoint
 
     app.listen(4000, () => {
         console.log('server started on localhost:4000')
