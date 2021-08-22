@@ -11,10 +11,11 @@ import { buildSchema } from "type-graphql";
 import { HelloResolver } from "./resolvers/hello";
 import { PostResolver } from "./resolvers/post";
 import { UserResolver } from "./resolvers/user";
-import redis from 'redis';
+import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors'
+import { User } from "./entities/User";
 
 
 
@@ -22,12 +23,14 @@ import cors from 'cors'
 
 const main = async () => { // create async main bcs of promises
     const orm = await MikroORM.init(microConfig); 
+    
+    await orm.em.nativeDelete(User,{})
     await orm.getMigrator().up();
 
     const app = express();
 
     const RedisStore = connectRedis(session)
-    const redisClient = redis.createClient()
+    const redis = new Redis() // redis client
 
     // now cors will apply to all routes
     app.use(
@@ -37,7 +40,7 @@ const main = async () => { // create async main bcs of promises
       })
     );
 
-    redisClient.on('error',function(err){
+    redis.on('error',function(err){
         console.log('Reddis error: ', err)
     });
 
@@ -45,7 +48,7 @@ const main = async () => { // create async main bcs of promises
         session({
             name: COOKIE_NAME,
             store: new RedisStore({ 
-                client: redisClient,
+                client: redis,
                 disableTouch: true
             }),
             cookie: {
@@ -68,7 +71,7 @@ const main = async () => { // create async main bcs of promises
             resolvers: [HelloResolver, PostResolver,UserResolver],
             validate: false,
         }),
-        context: ({req,res})=> ({em: orm.em, req, res}) // Special objects that are accessible to all the resolvers
+        context: ({req,res})=> ({em: orm.em, req, res,redis}) // Special objects that are accessible to all the resolvers
     });
 
     await apolloServer.start();
