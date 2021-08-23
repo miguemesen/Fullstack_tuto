@@ -1,29 +1,33 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { Field, ObjectType } from "type-graphql";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, BaseEntity, OneToMany } from "typeorm";
+import { Post } from "./Post";
 
 @ObjectType() // Converting class object to graphql type
 @Entity() // Tells MikrOrm that this is an entity and corresponds to a db table
-export class User {
+export class User extends BaseEntity{
     @Field() // Added field as part of converting class object to graphql type
-    @PrimaryKey()
+    @PrimaryGeneratedColumn()
     id!: number;
 
-    @Field(() => String)
-    @Property({type: "date"}) // Columns
-    createdAt = new Date();
-
-    @Field(() => String)
-    @Property({type: "date", onUpdate: () => new Date()})
-    updateAt = new Date();
-
     @Field() // You can remove the field to not expose on graphql
-    @Property({type: "text", unique: true})
+    @Column({unique: true})
     username!: string;
 
     @Field()
-    @Property({type: "text", unique: true})
+    @Column({unique: true})
     email!: string;
 
-    @Property({type: "text"})
+    @Column()
     password!: string;
+
+    @OneToMany(() => Post, post => post.creator)
+    posts: Post[];
+
+    @Field(() => String)
+    @CreateDateColumn() // Columns
+    createdAt: Date;
+
+    @Field(() => String)
+    @UpdateDateColumn()
+    updateAt: Date;
 }
