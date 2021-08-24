@@ -1,6 +1,6 @@
 import { dedupExchange, Exchange, fetchExchange } from "urql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
-import { cacheExchange } from "@urql/exchange-graphcache";
+import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
 import {
   LogoutMutation,
   MeQuery,
@@ -31,6 +31,11 @@ export const createUrqlClient = (ssrExchange: any) => ({
   exchanges: [
     dedupExchange,
     cacheExchange({
+      resolvers:{
+        Query: {
+          posts: cursorPagination(),
+        },
+      },
       updates: {
         Mutation: {
           // We're updating the cache
@@ -82,3 +87,27 @@ export const createUrqlClient = (ssrExchange: any) => ({
     fetchExchange,
   ],
 });
+
+
+const cursorPagination = () : Resolver => {
+  return (_parent, fieldArgs, cache, info) => {
+    const { parentKey: entityKey, fieldName } = info;
+    const allFields = cache.inspectFields(entityKey);
+    console.log("all fields: ", allFields)
+    const fieldInfos = allFields.filter(info => info.fieldName === fieldName);
+    const size = fieldInfos.length;
+    if (size === 0) {
+      return undefined;
+    }
+
+    const resutls: string[] = [];
+    fieldInfos.forEach(fi => {
+      const data = cache.resolve(entityKey,fi.fieldKey) as string[]
+      console.log(data)
+      resutls.push(...data)
+    })
+
+    return resutls;
+
+  };
+};
