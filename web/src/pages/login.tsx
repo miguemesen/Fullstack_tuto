@@ -30,7 +30,12 @@ import NextLink from "next/link"
               setErrors(toErrorMap(response.data.login.errors));
             } else if (response.data?.login.user) {
               // it worked
-              router.push("/"); // pushes back to homepage
+              if (typeof router.query.next === "string"){
+                router.push(router.query.next); // pushes back to homepage
+              } else {
+                router.push("/")
+              }
+              
             }
           }}
         >
