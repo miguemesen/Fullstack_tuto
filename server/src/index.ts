@@ -34,7 +34,7 @@ const main = async () => { // create async main bcs of promises
         entities: [Post, User]
     });
     await conn.runMigrations();
-    
+
     const app = express();
 
     const RedisStore = connectRedis(session)
