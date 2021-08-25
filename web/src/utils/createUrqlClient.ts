@@ -120,6 +120,7 @@ const cursorPagination = () : Resolver => {
     })
 
     return {
+      __typename: 'PaginatedPosts',
       hasMore,
       posts: resutls
     };

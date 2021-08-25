@@ -8,6 +8,8 @@ import {
   Ctx,
   ObjectType,
   Query,
+  FieldResolver,
+  Root,
 } from "type-graphql";
 import argon2 from "argon2";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
@@ -36,8 +38,19 @@ class UserResponse {
   user?: User; // User will be returned if it worked properly
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() {req}: MyContext){
+    // this is the current user and it's ok to show them their own email
+    if (req.session.userId === user.id){
+      return user.email;
+    }
+
+    // current user wants to see someone elses email
+    return "";
+  }
 
   @Mutation(() => UserResponse)
   async changePassword(
