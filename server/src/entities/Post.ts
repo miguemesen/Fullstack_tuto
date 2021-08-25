@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn,BaseEntity, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn,BaseEntity, ManyToOne, OneToMany } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import { User } from "./User";
+import { Updoot } from "./Updoot";
 
 @ObjectType() // Converting class object to graphql type
 @Entity() // Tells MikrOrm that this is an entity and corresponds to a db table
@@ -28,6 +29,9 @@ export class Post extends BaseEntity {
     @Field()
     @ManyToOne(() => User, user => user.posts)
     creator: User;
+
+    @OneToMany(() => Updoot, (updoot) => updoot.post)
+    updoots: Updoot[];
 
     @Field(() => String)
     @CreateDateColumn() // Columns
