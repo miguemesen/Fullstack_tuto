@@ -8,11 +8,11 @@ import {
   Button,
   IconButton
 } from "@chakra-ui/react";
-import { DeleteIcon} from "@chakra-ui/icons";
+import { DeleteIcon,EditIcon} from "@chakra-ui/icons";
 import { withUrqlClient } from "next-urql";
 import { Layout } from "../components/Layout";
 import { NavBar } from "../components/NavBar";
-import { useDeletePostMutation, usePostsQuery } from "../generated/graphql";
+import { useDeletePostMutation, useMeQuery, usePostsQuery } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import NextLink from "next/link";
 import React from "react";
@@ -25,7 +25,7 @@ const Index = () => {
     cursor: null as null | string,
   });
 
-
+  const [{data: meData}] = useMeQuery();
   const [{ data, fetching }] = usePostsQuery({
     variables,
   });
@@ -55,15 +55,27 @@ const Index = () => {
                   <Text flex={1}>posted by {p.creator.username}</Text>
                   <Flex align="center">
                     <Text mt={4}>{p.textSnippet}</Text>
-                    <IconButton
-                      ml="auto"
-                      onClick={() => {
-                        deletePost({ id: p.id });
-                      }}
-                      aria-label="delete post"
-                      colorScheme="red"
-                      icon={<DeleteIcon />}
-                    ></IconButton>
+                    {meData?.me?.id !== p.creator.id ? null : <Box ml="auto">
+                      <NextLink
+                        href="/post/edit/[id]"
+                        as={`/post/edit/${p.id}`}
+                      >
+                        <IconButton
+                          as={Link}
+                          mr={4}
+                          aria-label="Edit post"
+                          icon={<EditIcon />}
+                        />
+                      </NextLink>
+                      <IconButton
+                        onClick={() => {
+                          deletePost({ id: p.id });
+                        }}
+                        aria-label="delete post"
+                        //colorScheme="red"
+                        icon={<DeleteIcon />}
+                      />
+                    </Box>}
                   </Flex>
                 </Box>
               </Flex>
