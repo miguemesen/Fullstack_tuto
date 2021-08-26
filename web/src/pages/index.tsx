@@ -1,23 +1,20 @@
 import {
   Box,
+  Button,
+  Flex,
+  Heading,
   Link,
   Stack,
-  Text,
-  Heading,
-  Flex,
-  Button,
-  IconButton
+  Text
 } from "@chakra-ui/react";
-import { DeleteIcon,EditIcon} from "@chakra-ui/icons";
 import { withUrqlClient } from "next-urql";
-import { Layout } from "../components/Layout";
-import { NavBar } from "../components/NavBar";
-import { useDeletePostMutation, useMeQuery, usePostsQuery } from "../generated/graphql";
-import { createUrqlClient } from "../utils/createUrqlClient";
 import NextLink from "next/link";
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import { EditDeletePostButtons } from "../components/EditDeletePostButtons";
+import { Layout } from "../components/Layout";
 import { UpdootSection } from "../components/UpdootSection";
+import { usePostsQuery } from "../generated/graphql";
+import { createUrqlClient } from "../utils/createUrqlClient";
 
 const Index = () => {
   const [variables, setVariables] = useState({
@@ -25,15 +22,17 @@ const Index = () => {
     cursor: null as null | string,
   });
 
-  const [{data: meData}] = useMeQuery();
-  const [{ data, fetching }] = usePostsQuery({
+  const [{ data, error, fetching }] = usePostsQuery({
     variables,
   });
 
-  const [,deletePost] = useDeletePostMutation();
-
   if (!fetching && !data) {
-    return <div>you got query failed for some reason</div>;
+    return (
+      <div>
+        <div>you got query failed for some reason</div>)
+        <div>{error?.message}</div>
+      </div>
+    );
   }
 
   return (
@@ -55,27 +54,13 @@ const Index = () => {
                   <Text flex={1}>posted by {p.creator.username}</Text>
                   <Flex align="center">
                     <Text mt={4}>{p.textSnippet}</Text>
-                    {meData?.me?.id !== p.creator.id ? null : <Box ml="auto">
-                      <NextLink
-                        href="/post/edit/[id]"
-                        as={`/post/edit/${p.id}`}
-                      >
-                        <IconButton
-                          as={Link}
-                          mr={4}
-                          aria-label="Edit post"
-                          icon={<EditIcon />}
-                        />
-                      </NextLink>
-                      <IconButton
-                        onClick={() => {
-                          deletePost({ id: p.id });
-                        }}
-                        aria-label="delete post"
-                        //colorScheme="red"
-                        icon={<DeleteIcon />}
+
+                    <Box ml="auto">
+                      <EditDeletePostButtons
+                        id={p.id}
+                        creatorId={p.creator.id}
                       />
-                    </Box>}
+                    </Box>
                   </Flex>
                 </Box>
               </Flex>
@@ -104,4 +89,4 @@ const Index = () => {
   );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index); 
+export default withUrqlClient(createUrqlClient, { ssr: true })(Index);

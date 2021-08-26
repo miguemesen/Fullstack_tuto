@@ -18,6 +18,8 @@ import { User } from "./entities/User";
 import { Post } from "./entities/Post";
 import path from "path"
 import { Updoot } from "./entities/Updoot";
+import { createUserLoader } from "./utils/createUserLoader";
+import { createUpdootLoader } from "./utils/createUpdootLoader";
 
 
 
@@ -73,14 +75,18 @@ const main = async () => { // create async main bcs of promises
     )
 
     const apolloServer = new ApolloServer({
-        plugins: [
-            ApolloServerPluginLandingPageGraphQLPlayground(),
-          ],
-        schema: await buildSchema({
-            resolvers: [HelloResolver, PostResolver,UserResolver],
-            validate: false,
-        }),
-        context: ({req,res})=> ({req, res,redis}) // Special objects that are accessible to all the resolvers
+      plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
+      schema: await buildSchema({
+        resolvers: [HelloResolver, PostResolver, UserResolver],
+        validate: false,
+      }),
+      context: ({ req, res }) => ({
+        req,
+        res,
+        redis,
+        userLoader: createUserLoader(),
+        updootLoader: createUpdootLoader(),
+      }), // Special objects that are accessible to all the resolvers
     });
 
     await apolloServer.start();
