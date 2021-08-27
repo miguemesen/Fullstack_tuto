@@ -10,7 +10,7 @@ import { useState } from "react";
 import { router } from "websocket";
 import { InputField } from "../../components/InputField";
 import { Wrapper } from "../../components/Wrapper";
-import { useChangePasswordMutation } from "../../generated/graphql";
+import { MeDocument, MeQuery, useChangePasswordMutation } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { toErrorMap } from "../../utils/toErrorMap";
 import NextLink from "next/link"
@@ -31,8 +31,18 @@ const ChangePassword: NextPage = () => {
               token:
                 typeof router.query.token === "string"
                   ? router.query.token
-                  : "",
+                  : "",   
             },
+            update: (cache, {data}) => {
+              cache.writeQuery<MeQuery>({
+                query: MeDocument,
+                data: {
+                  __typename: "Query",
+                  me: data?.changePassword.user,
+                }
+              });
+              cache.evict({fieldName: "posts:{}"})
+            }
           });
           if (response.data?.changePassword.errors) {
             const errorMap = toErrorMap(response.data.changePassword.errors);
