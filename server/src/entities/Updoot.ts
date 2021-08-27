@@ -1,7 +1,6 @@
-import { Column, CreateDateColumn, Entity, UpdateDateColumn,BaseEntity, ManyToOne, PrimaryColumn } from "typeorm";
-import { Field, ObjectType } from "type-graphql";
-import { User } from "./User";
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { Post } from "./Post";
+import { User } from "./User";
 
 
 @Entity() // Tells MikrOrm that this is an entity and corresponds to a db table
