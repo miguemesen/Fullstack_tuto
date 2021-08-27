@@ -8,17 +8,18 @@ import { Wrapper } from "../components/Wrapper";
 import { useForgotPasswordMutation } from "../generated/graphql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { toErrorMap } from "../utils/toErrorMap";
+import { withApollo } from "../utils/withApollo";
 import login from "./login";
 
 const ForgotPassword: React.FC<{}> = ({}) => {
     const [complete, setComplete] = useState(false);
-    const [,forgotPassword] = useForgotPasswordMutation()
+    const [forgotPassword] = useForgotPasswordMutation()
     return (
       <Wrapper variant="small">
         <Formik
           initialValues={{ email: "" }}
           onSubmit={async (values) => {
-            await forgotPassword(values);
+            await forgotPassword({variables: values});
             setComplete(true);
           }}
         >
@@ -50,4 +51,4 @@ const ForgotPassword: React.FC<{}> = ({}) => {
     );
 }
 
-export default withUrqlClient(createUrqlClient) (ForgotPassword);
+export default withApollo({ssr: false}) (ForgotPassword);

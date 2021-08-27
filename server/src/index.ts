@@ -35,7 +35,7 @@ const main = async () => { // create async main bcs of promises
         migrations: [path.join(__dirname, "./migrations/*")],
         entities: [Post, User, Updoot]
     });
-    await conn.runMigrations();
+    // await conn.runMigrations();
 
     const app = express();
 
@@ -43,7 +43,7 @@ const main = async () => { // create async main bcs of promises
     const redis = new Redis(process.env.REDIS_URL) // redis client
 
 
-    app.set("proxy",1)
+    app.set("trust proxy",1)
 
     // now cors will apply to all routes
     app.use(

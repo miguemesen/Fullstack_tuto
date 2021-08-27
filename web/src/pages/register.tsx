@@ -16,6 +16,7 @@ import { toErrorMap } from "../utils/toErrorMap";
 import {useRouter} from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { withApollo } from "../utils/withApollo";
 
 interface registerProps {}
 
@@ -23,13 +24,13 @@ interface registerProps {}
 
 const Register: React.FC<registerProps> = ({}) => {
   const router = useRouter();
-  const [,register] = useRegisterMutation();
+  const [register] = useRegisterMutation();
   return (
     <Wrapper variant="small">
       <Formik
         initialValues={{ email: "", username: "", password: "" }}
         onSubmit={async (values, { setErrors }) => {
-          const response = await register({ options: values });
+          const response = await register({variables: {options: values} });
           if (response.data?.register.errors) {
             setErrors(toErrorMap(response.data.register.errors));
           } else if (response.data?.register.user) {
@@ -76,4 +77,4 @@ const Register: React.FC<registerProps> = ({}) => {
   );
 };
 
-export default withUrqlClient(createUrqlClient) (Register);
+export default withApollo({ssr: false}) (Register);
